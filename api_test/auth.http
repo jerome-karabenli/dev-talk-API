@@ -1,0 +1,25 @@
+
+### All these fields must be provided
+POST http://localhost:3000/v1/register
+Content-Type: application/json
+
+{
+    "pseudo" : "exemple",
+    "lastname" : "exemple",
+    "firstname" : "exemple",
+    "email" : "exemple@gmail.com",
+    "password" : "Exemple123+",
+    "passwordConfirm" : "Exemple123+"
+}
+
+### Login
+POST http://localhost:3000/v1/login
+Content-Type: application/json
+
+{
+    "pseudo" : "exemple",
+    "password" : "Exemple123+"
+}
+
+ 
+

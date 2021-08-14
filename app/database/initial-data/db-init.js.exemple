@@ -1,0 +1,10 @@
+db.users.insert(
+    [
+        {
+          "lastname": "exemple",
+          "registered": false
+        },
+        
+      ]
+
+)

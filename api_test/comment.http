@@ -1,0 +1,50 @@
+### GET ALL COMMENTS OR FILTER BY 'commentId' || 'authorId' || 'subjectId'
+### GET ALL SUBJECTS
+GET http://localhost:3000/v1/comment
+Content-Type: application/json
+
+### GET FILTERED COMMENTS
+GET http://localhost:3000/v1/comment
+Content-Type: application/json
+
+{
+    "_id" : "commentId",
+    "author" : "authorId",
+    "subject" : "subjectId"
+}
+
+
+### ADD COMMENT
+## All these fields must be provided
+POST http://localhost:3000/v1/comment
+Content-Type: application/json
+
+{
+    "author" : "authorId",
+    "subject" : "subjectId",
+    "body" : "exemple",
+    
+}
+
+
+
+### UPDATE COMMENT
+### Comment id must be provided
+### Updatable fields are : "body"
+PATCH http://localhost:3000/v1/comment
+Content-Type: application/json
+
+{
+    "_id" : "subject_id",
+    "body" : "exemple",
+    
+}
+
+
+### DELETE COMMENT
+DELETE http://localhost:3000/v1/comment
+Content-Type: application/json
+
+{
+    "_id" : "commentId"
+}

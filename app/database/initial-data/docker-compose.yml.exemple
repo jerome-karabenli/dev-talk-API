@@ -1,0 +1,25 @@
+version: '3.7'
+services:   
+    devtalk_database:
+        image: mongo:4.0.26
+        restart: unless-stopped
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: exemple
+            MONGO_INITDB_ROOT_PASSWORD: exemple
+            MONGO_INITDB_DATABASE: devtalk
+        ports:
+            - 27018:27017
+        volumes:
+          - ./db-init.js:/docker-entrypoint-initdb.d/db-init.js
+          - ./database:/data/db
+
+    redis:
+        image: redis
+        restart: unless-stopped
+        ports:
+            - 6379:6379
+       
+    
+volumes:
+  database:
+        
