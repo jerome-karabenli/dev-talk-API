@@ -1,18 +1,18 @@
-const mongoose = require("mongoose")
+const {Schema, model} = require("mongoose")
 const bcrypt = require("bcryptjs")
-const { checkEmail, checkPassword } = require("../utils") 
 
-const userSchema = new mongoose.Schema({
-  pseudo: { type: String, required: true, max: 20 },
-  lastname: { type: String, required: true, max: 20, uppercase: true },
-  firstname: { type: String, required: true, max: 25 },
+
+const userSchema = new Schema({
+  pseudo: { type: String, required: true, max: 30 },
+  lastname: { type: String, required: true, max: 30, uppercase: true },
+  firstname: { type: String, required: true, max: 30 },
   email: { type: String, required: true, max: 30 },
   password: { type: String, required: true },
   picture: { type: String }, 
-  registered: { type: Boolean, default: false },
-  role: { type: String, default: "user" },
-  subjects: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Subject' }]
-}, { timestamps: true })
+  role: [{ type: String }],
+  registered: {type: Boolean},
+  subjects: [{ type: Schema.Types.ObjectId, ref: 'Subject' }]
+}, { timestamps: true, versionKey: false })
 
 
 // userSchema.post("save", async function(){
@@ -22,10 +22,11 @@ const userSchema = new mongoose.Schema({
 userSchema.pre("save", async function(){
  
   this.registered = true
+  this.role.push("user")
   const salt = await bcrypt.genSalt(10)
   this.password = await bcrypt.hash(this.password, salt)
 
 })
 
-module.exports = mongoose.model("User", userSchema, "users") 
+module.exports = model("User", userSchema, "users") 
 

@@ -1,60 +1,111 @@
 const { Subject, User, Comment } = require("../models")
-const {deleteUnthorizedKeys, deleteEmptyKeys} = require("../utils")
+const {deleteUnthorizedKeys, deleteEmptyKeys} = require("../services/utils")
 
 const validKeys = ["comments", "title", "description", "references"]
 
 module.exports = {
     getAllOrFilter: async (req, res) => {
+        
         try {
-            const { _id, author, title } = req.body
-            if(_id || author || title) {
-                const subjects = await Subject.find({$or: [{_id}, {author}, {title}]}, {__v:0})
+            let {author, title} = req.query
+            
+            if(!author && !title){
+                
+                const subjects = await Subject.find({})
                 .populate({path: "author", model: 'User', select: 'pseudo lastname firstname'})
-                return res.json(subjects)
-            } else {
-                const subjects = await Subject.find({}, {__v:0})
-                .populate({path: "author", model: 'User', select: 'pseudo lastname firstname'})
+                .populate({path: "comments", model: 'Comment', select: '-subject', populate: 
+                        {
+                            path: 'author',
+                            model: "User", 
+                            select: 'pseudo lastname firstname'
+                        }
+                })
                 return res.json(subjects)
             }
+            
+            if(!title) title = ""
+            if(title) title = title.toLowerCase()+title.toUpperCase()
+            
+            const subjects = await Subject.find({$or: [{author}, {title: {$regex:`^[${title}]`}}]})
+            .populate({path: "comments", model: 'Comment', select: '-subject', populate: 
+                        {
+                            path: 'author',
+                            model: "User", 
+                            select: 'pseudo lastname firstname'
+                        }
+                })
+                
+            if(!subjects.length) return res.status(404).json({message: "subject not found"})
+            res.json(subjects)
+   
+        } catch (error) {
+            res.status(500).json(error.message)
+        }
+    },
+
+    getById: async (req, res) => {
+        const {_id} = req.params
+        try {
+
+            const subject = await Subject.findOne({_id})
+            .populate({path: "author", model: "User", select: 'pseudo lastname firstname'})
+            if(!subject) return res.status(404).json({message: "subject not found"})
+
+            res.json(subject)
+
+        } catch (error) { 
+            res.status(500).json(error)
+        }
+    },
+
+    getByAuthor: async (req, res) => {
+        const {author} = req.params
+
+        try {
+            
+            const subjects = await Subject.find({author})
+            .populate({path: "author", model: "User", select: 'pseudo lastname firstname'})
+            if(!subjects) return res.status(404).json({message: "subject not found"})
+
+            res.json(subjects)
+
+        } catch (error) {
+            res.status(500).json(error)
+        }
+        
+    },
+
+    addOne: async (req, res) => {
+        try {
+            const { author, title, description, date } = req.body
+    
+            const userExist = await User.exists({_id: author})
+            if(!userExist) return res.status(404).json({message: "l'utilisateur n'existe pas"})
+
+            const newSubject = new Subject(req.body)
+            await newSubject.save()
+            await User.updateOne({ _id: author }, { $push: { subjects: newSubject._id } })
+            
+            res.json(newSubject)
             
         } catch (error) {
             res.status(500).json(error)
         }
     },
 
-    addOne: async (req, res) => {
-        try {
-            const { author, title, description, date } = req.body
-            if(deleteEmptyKeys(req.body)) return res.status(404).json("Merci de renseigner tous les champs")
-            if(!author || !title || !description || !date) return res.status(404).json("Merci de renseigner tous les champs")
-    
-            const userExist = await User.exists({_id: author})
-            if(!userExist) return res.status(404).json("l'utilisateur n'existe pas")
-
-            const newSubject = new Subject(req.body)
-            await newSubject.save()
-            await User.updateOne({ _id: author }, { $push: { subjects: newSubject._id } })
-            res.json(newSubject)
-            
-        } catch (error) {
-            res.status(500).json(error.message)
-        }
-    },
-
 
     addReference: async (req, res) => {
         try {
-            const { _id, reference, description } = req.body
+            const { url, description } = req.body
+            const {_id} = req.params
 
-            if(deleteEmptyKeys(req.body)) return res.status(404).json("Merci de renseigner tous les champs")
-            if(!_id || !reference) return res.status(404).json("Merci de renseigner tous les champs")
-    
-            const subjectExist = await Subject.exists({_id})
-            if(!subjectExist) return res.status(404).json("le sujet n'existe pas")
+            const newReference = {url, description}
 
-            const newReference = {reference, description}
-            const validation = await Subject.updateOne({ _id }, { $push: { references: newReference } })
-            res.json(validation.nModified)
+            const {nModified} = await Subject.updateOne({ _id }, { $push: { references: newReference } })
+
+            if(!nModified) return res.status(404).json({message: "subject not found"})
+
+            res.json({message: "reference added"})
             
         } catch (error) {
             res.status(500).json(error.message)
@@ -64,36 +115,44 @@ module.exports = {
 
     updateOne: async (req, res) => {
         try {
-            const { _id, description, title } = req.body
+            const {_id} = req.params
  
-            deleteEmptyKeys(req.body)
-
-            if(!description && !title) return res.status(404).json("Merci de compléter au moins un champs")
-
-            const subjectExist = await Subject.exists({ _id })
-            if(!subjectExist) return res.status(404).json(false)
-            else{
             const updatedSubject = await Subject.findOneAndUpdate({ _id }, req.body, {new: true})
-            res.status(200).json(updatedSubject)
-        }
+            if(!updatedSubject) return res.status(404).json({message: "subject not found"})
+            
+            res.json(updatedSubject)
+        
         } catch (error) {
-            res.status(500).json(error.message)
+            res.status(500).json(error)
         }
     },
 
     deleteOne: async (req, res) => {
         try {
-            const { _id } = req.body
+            const { _id } = req.params
+           
+            const subject = await Subject.findOneAndDelete({ _id })
+            if(!subject) return res.status(404).json({message: "subject not found"})
 
-            const subjectExist = await Subject.exists({_id})
-            if(!subjectExist) return res.status(404).json(false)
-            else {
-            const validation = await Subject.deleteOne({ _id })
-            res.json(validation.deletedCount)
-            }
+            const {nModified} = await User.updateOne({ _id: subject.author }, { $pull: { subjects: _id } })
+
+            if(!nModified) return res.status(500).json({message: "author of subject not found"})
+
+            res.json({message: "subject deleted"})
+            
 
         } catch (error) {
             res.status(500).json(error.message)
         }
+    },
+
+    deleteReference: async (req, res) => {
+        const {url} = req.body
+        const {_id} = req.params
+
+        
+        await Subject.updateMany({_id}, {$pull: {references: {url}}})
+       
+        res.json({message: "reference deleted"})
     }
 }

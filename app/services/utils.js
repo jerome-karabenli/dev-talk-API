@@ -1,4 +1,3 @@
-
 module.exports = {
   checkEmail: (value) => {
     const emailExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -30,6 +29,11 @@ module.exports = {
           delete object[Object.keys(object)[index]]
    })
   },
+
+  checkEmptyFields: (req, res, next) => {
+    if(deleteEmptyKeys(req.body)) return res.status(404).json("il manque un champ")
+    next()
+}
 
 
 }
