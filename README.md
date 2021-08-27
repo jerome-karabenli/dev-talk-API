@@ -50,9 +50,9 @@ Assuming you are working on linux, adapt these commands for your os.
 
 be careful, if you run the node app without docker env variables are in file `./.env` otherwise if you use dockerized app env variables are in `./docker/docker-compose.yml`
 
-`DB_URI_DEV=mongodb://username:password@url:37017/devtalk`
-`DB_URI_DEV=mongodb://username:password@url:27017/devtalk`
-`ACCES_TOKEN_SECRET=yoursecret`
-`API_DOCS_SERVER=https://url:3001/devtalk/api/v1`
-`NODE_ENV=developpement`
-`HTTPS=disabled || enabled`
+- `DB_URI_DEV=mongodb://username:password@url:37017/devtalk`
+- `DB_URI_DEV=mongodb://username:password@url:27017/devtalk`
+- `ACCES_TOKEN_SECRET=yoursecret`
+- `API_DOCS_SERVER=https://url:3001/devtalk/api/v1`
+- `NODE_ENV=developpement`
+- `HTTPS=disabled || enabled`
