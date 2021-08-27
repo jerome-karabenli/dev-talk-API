@@ -34,14 +34,14 @@ The idea is to be able to register and submit new subjects in dev-talk API and s
 Assuming you are working on linux, adapt these commands for your os. 
 
 ### ALL API FEATURES ARE READY TO USE OR CUSTOMIZABLE
-1. `git clone https://github.com/jerome-karabenli/dev-talk.git`
-2. `cd dev-talk/.docker`
-3. `OMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build --no-cache`
+1. `git clone https://github.com/jerome-karabenli/dev-talk-REST.git`
+2. `cd dev-talk-REST/.docker`
+3. `COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build --no-cache`
 4. `docker-compose up -d`
 
 
 ### JUST RUN THE NODE APP
-1. `cd dev-talk`
+1. `cd dev-talk-REST`
 2. `npm start` for production
 3. `npm run dev` for developpement
 
