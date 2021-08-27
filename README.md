@@ -36,7 +36,7 @@ Assuming you are working on linux, adapt these commands for your os.
 ### ALL API FEATURES ARE READY TO USE OR CUSTOMIZABLE
 1. `git clone https://github.com/jerome-karabenli/dev-talk-REST.git`
 2. `cd dev-talk-REST/.docker`
-3. `OMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build --no-cache`
+3. `COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build --no-cache`
 4. `docker-compose up -d`
 
 
