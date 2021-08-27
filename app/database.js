@@ -2,26 +2,19 @@ const mongoose = require("mongoose")
 
 
 
-const dbProd = mongoose.createConnection(process.env.DB_URI_PROD, {
+const dbConnection = (DB_URI, message) => {
+module.exports = mongoose.connect(DB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useFindAndModify: false,
   authSource: "admin"
 })
-.then(connect => console.log("mongoDB production connected"))
+.then(connect => console.log(`mongoDB ${message} connected`))
 .catch(err => console.log("mongoDB connection error :" + err))
+}
 
-const dbDev = mongoose.createConnection(process.env.DB_URI_DEV, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useFindAndModify: false,
-  authSource: "admin"
-})
-.then(connect => console.log("mongoDB develop connected"))
-.catch(err => console.log("mongoDB connection error :" + err))
+process.env.NODE_ENV === 'production' ? dbConnection(process.env.DB_URI_PROD, "production") : dbConnection(process.env.DB_URI_DEV, 'developpement')
 
-
-module.exports = { dbDev, dbProd}
 
 
 

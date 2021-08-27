@@ -2,4 +2,7 @@ node_modules
 *.DS_Store
 *.map
 .env
-
+privkey.pem
+fullchain.pem
+.docker/docker-compose.yml
+.docker/.dockerignore

@@ -8,7 +8,7 @@ const jwtSecret = process.env.ACCES_TOKEN_SECRET
 module.exports = {
     login: async (req, res, next) => {
         try {
-           
+
             const { pseudo, password } = req.body
             
             const user = await User.findOne({pseudo})
@@ -31,7 +31,7 @@ module.exports = {
 
     register: async (req, res) => {
         try {
-        
+            console.log("bingo")
             const {pseudo, firstname, lastname, email ,password, passwordConfirm} = req.body
 
             if(!checkEmail(email)) return res.status(401).json("email invalide")

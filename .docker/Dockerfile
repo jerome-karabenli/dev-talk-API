@@ -1,7 +1,18 @@
-FROM node:stretch-slim
-WORKDIR /usr/src/app
-COPY package*.json ./
+FROM node:lts-alpine as base
+
+WORKDIR /src
+COPY ../package*.json /src
+
+
+FROM base as production
+ENV NODE_ENV=production
 RUN npm install
 COPY . .
-EXPOSE 3000
-CMD ["node", "index.js"]
+CMD ["npm", "start"]
+
+FROM base as dev
+ENV NODE_ENV=development
+RUN npm install -g nodemon
+RUN npm install
+COPY . .
+CMD ["npm", "run", "dev"]
