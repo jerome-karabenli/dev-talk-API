@@ -32,7 +32,7 @@ app.use(limiter);
 
 if(process.env.NODE_ENV === "developpement"){
   
-  app.use(cors({origin: ["https://rpiweb.hopto.org:3001", "http://rpiweb.hopto.org:3001", "localhost:3001"]}))
+  app.use(cors())
   
   app.use('/api-docs',swaggerUI.serve,swaggerUI.setup(docs));
   

@@ -1,7 +1,7 @@
 FROM node:lts-alpine as base
 
 WORKDIR /src
-COPY ../package*.json /src
+COPY ../package*.json /
 
 
 FROM base as production

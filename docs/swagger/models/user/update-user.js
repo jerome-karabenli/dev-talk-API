@@ -1,6 +1,6 @@
 module.exports = {
     // operation's method
-    post: {
+    patch: {
       security: [{bearerAuth: []}],
       tags: ["User"], // operation's tag
       description: "Update logged user, user ID is send automaticly through token in request headers {}", // short desc
@@ -25,6 +25,9 @@ module.exports = {
                 email: {
                   type: "string",
                   format:"email",
+                },
+                picture: {
+                  type: "string",
                 },
               }
             }

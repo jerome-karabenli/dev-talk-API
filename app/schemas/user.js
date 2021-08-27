@@ -14,7 +14,8 @@ module.exports = {
         pseudo: Joi.string().trim().max(40),
         lastname: Joi.string().max(40).trim(),
         firstname: Joi.string().max(40).trim(),
-        email: Joi.string().email().max(40).trim().lowercase()
+        email: Joi.string().email().max(40).trim().lowercase(),
+        picture: Joi.string()
     })
 }
 
