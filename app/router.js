@@ -45,7 +45,9 @@ router.post("/register", validateBody(userSchema.add), authController.register)
 
 // admin
 router.get("/admin/users", verifyToken, isAdmin, adminController.getAllOrFilter)
-router.get("/admin/user", verifyToken, isAdmin, adminController.getOneUser)
-
+router.route("/admin/user")
+.get(verifyToken, isAdmin, adminController.getOneUser)
+.patch(verifyToken, isAdmin, adminController.update)
+.delete(verifyToken, isAdmin, adminController.delete)
 
 module.exports = router

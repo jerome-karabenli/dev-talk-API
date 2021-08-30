@@ -36,7 +36,6 @@ module.exports = {
 
             if(!checkEmail(email)) return res.status(401).json("email invalide")
             if(password !== passwordConfirm) return res.status(401).json("les mots de passe ne correspondent pas")
-            if(!checkPassword(password)) return res.status(401).json("le mot de passe doit comporter au minimum 1 minuscule 1 majuscule 1 chiffre 1 caractere special : +")
 
             const userExist = await User.exists({$or: [{ email }, { lastname }, { pseudo }]})
             if(userExist) return res.status(401).json({message:"vous etes déja enregistré"})
