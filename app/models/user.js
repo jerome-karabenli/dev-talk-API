@@ -20,9 +20,11 @@ const userSchema = new Schema({
 // }) 
 
 userSchema.pre("save", async function(){
- 
-  this.registered = true
-  this.role.push("user")
+  if(!this.registered){
+    this.registered = true
+    this.role.push("user")
+  }
+  
   const salt = await bcrypt.genSalt(10)
   this.password = await bcrypt.hash(this.password, salt)
 

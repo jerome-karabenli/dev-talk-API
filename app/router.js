@@ -2,13 +2,14 @@ const router = require('express').Router()
 const {adminController, authController, userController, subjectController, commentController} = require("./controllers")
 const { verifyToken, isAdmin, isUser } = require('./services/authJwt')
 const {validateBody, validateParams, validateQuery} = require("./services/schemaValidator")
-const {userSchema, commentSchema, subjectSchema, loginSchema} = require("./schemas")
+const {userSchema, commentSchema, subjectSchema, authSchema} = require("./schemas")
 
 
 // user
 router.route("/user")
 .get(verifyToken, isUser, userController.getOne)
 .patch(verifyToken, isUser, validateBody(userSchema.update) , userController.updateOne)
+.put(verifyToken, isUser, validateBody(userSchema.changePassword), authController.changePassword)
 .delete(verifyToken, isUser ,userController.deleteOne)
     
 // subject
@@ -40,8 +41,9 @@ router.route("/comment/:_id")
 
     
 // auth
-router.post("/login", validateBody(loginSchema.login), authController.login)
+router.post("/login", validateBody(authSchema.login), authController.login)
 router.post("/register", validateBody(userSchema.add), authController.register)
+router.post("/recovery", validateBody(authSchema.lostPassword), authController.lostPassword)
 
 // admin
 router.get("/admin/users", verifyToken, isAdmin, adminController.getAllOrFilter)

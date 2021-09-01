@@ -1,4 +1,5 @@
 module.exports = {
     login:require('./login'),
-    register:require('./register')   
+    register:require('./register'),
+    lostPassword:require('./lostPassword')   
 }

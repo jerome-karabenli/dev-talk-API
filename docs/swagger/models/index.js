@@ -9,6 +9,7 @@ module.exports = {
         '/user':{
             ...user.getUser,
             ...user.updateUser,
+            ...user.changePassword,
             ...user.deleteUser
         },
         
@@ -40,6 +41,9 @@ module.exports = {
         '/register':{
             ...auth.register
         },
+        '/recovery':{
+            ...auth.lostPassword
+        }
 
     }
 }
