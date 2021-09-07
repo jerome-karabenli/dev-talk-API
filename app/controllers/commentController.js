@@ -1,7 +1,7 @@
 const { Comment, User, Subject } = require("../models")
 
 module.exports = {
-    getAllOrFilter: async (req, res) => {
+    getByAuthor: async (req, res) => {
         try {
 
             const { subject, author } = req.params
@@ -21,25 +21,6 @@ module.exports = {
             res.status(500).json(error)
         }
     },
-
-    getOne: async (req, res) => {
-       
-            const {_id} = req.params
-
-            try {
-
-                const comment = await Comment.findOne({_id})
-                .populate({path: "author", model: "User", select: 'pseudo lastname firstname'})
-                if(!comment) return res.status(404).json({message: "comment not found"})
-
-                res.json(comment)
-
-            } catch (error) { 
-                res.status(500).json(error.message)
-            }
-    },
-
-
 
 
     addOne: async (req, res) => {

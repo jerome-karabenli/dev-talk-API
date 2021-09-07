@@ -4,22 +4,7 @@ const { deleteEmptyKeys, deleteUnthorizedKeys, checkEmail, checkPassword } = req
 
 
 module.exports = {
-    // getAllOrFilter: async (req, res) => {
-    //     try {
-    //         const { _id, pseudo, lastname } = req.params
-            
-    //         if(!_id && !pseudo && !lastname) {
-    //             const users = await User.find({}, {password: 0})
-    //             return res.json(users)    
-    //         }
-    //         const users = await User.find({$or: [{_id}, {pseudo}, {lastname}]}, {password:0})
-    //         res.json(users)
-            
-    //     } catch (error) {
-    //         res.status(500).json(error.message)
-    //     }
-    // },
-
+    
     getOne: async (req, res) => {
         try {
            

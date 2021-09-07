@@ -56,3 +56,7 @@ be careful, if you run the node app without docker env variables are in file `./
 - `API_DOCS_SERVER=https://url:3001/devtalk/api/v1`
 - `NODE_ENV=developpement || production`
 - `HTTPS=disabled || enabled`
+
+
+
+docker exec -it devtalk_redis redis-cli FLUSHALL

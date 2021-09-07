@@ -5,6 +5,7 @@ services:
         context: ./
       volumes:
         - ../:/src/:rw
+        - /home/pi/docker-data/devtalk/mongo/backup/:/src/db-dump/backup/
       command: npm run dev
       restart: unless-stopped
       network_mode: "host"

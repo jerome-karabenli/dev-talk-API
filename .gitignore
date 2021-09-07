@@ -4,5 +4,5 @@ node_modules
 .env
 ssl/privkey.pem
 ssl/fullchain.pem
-.docker/docker-compose.yml
-.docker/.dockerignore
+docker-compose.yml
+db-dump/backup/*.dump

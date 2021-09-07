@@ -28,16 +28,6 @@ module.exports = {
         }
     },
 
-    isUser: async (req, res, next) => {
-        
-        const tokenData = req.token
-        
-        const user = tokenData.role.find(role => role === "user")
-        if(!user) return res.status(403).json("Unauthorized !")
-
-        next()
-    },
-
     isAdmin: async (req, res, next) => {
 
         const tokenData = req.token

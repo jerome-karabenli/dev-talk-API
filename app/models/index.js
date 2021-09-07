@@ -1,4 +1,4 @@
-require("../database")
+require("../databases/mongoDB")
 
 module.exports = {
     User : require("./user"),

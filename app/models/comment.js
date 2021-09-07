@@ -10,7 +10,7 @@ const commentSchema = new Schema({
   
 commentSchema.post("save", async function (){
   await this.populate({path:"author", model: "User", select: 'pseudo lastname firstname'}).execPopulate()
-  // await this.populate({path:"subject", model: "Subject", select: 'title description references'}).execPopulate()
+
 })
 
 module.exports = model("Comment", commentSchema, "comments")

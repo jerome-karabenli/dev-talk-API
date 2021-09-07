@@ -3,53 +3,46 @@ const {adminController, authController, userController, subjectController, comme
 const { verifyToken, isAdmin, isUser } = require('./services/authJwt')
 const {validateBody, validateParams, validateQuery} = require("./services/schemaValidator")
 const {userSchema, commentSchema, subjectSchema, authSchema} = require("./schemas")
-
+const {cache, flush} = require('./services/cache')
 
 // user
 router.route("/user")
-.get(verifyToken, isUser, userController.getOne)
-.patch(verifyToken, isUser, validateBody(userSchema.update) , userController.updateOne)
-.put(verifyToken, isUser, validateBody(userSchema.changePassword), authController.changePassword)
-.delete(verifyToken, isUser ,userController.deleteOne)
+.get(verifyToken, cache, userController.getOne)
+.patch(verifyToken, validateBody(userSchema.update), flush, userController.updateOne)
+.put(verifyToken, validateBody(userSchema.changePassword), flush, authController.changePassword) //todo refacto
+.delete(verifyToken, flush, userController.deleteOne)
     
 // subject
 router.route("/subject")
-.get(verifyToken, isUser, validateQuery(subjectSchema.get), subjectController.getAllOrFilter)
-.post(verifyToken, isUser, validateBody(subjectSchema.add) , subjectController.addOne)
+.get(verifyToken, validateQuery(subjectSchema.get), cache, subjectController.getAllOrFilter)
+.post(verifyToken, validateBody(subjectSchema.add), flush, subjectController.addOne)
+.patch(verifyToken, validateBody(subjectSchema.update), flush, subjectController.updateOne)
+.delete(verifyToken, flush, subjectController.deleteOne)
 
-router.route("/subject/:_id")
-.get(verifyToken, isUser, subjectController.getById)
-.patch(verifyToken, isUser, validateBody(subjectSchema.update), subjectController.updateOne)
-.delete(verifyToken, isUser, subjectController.deleteOne)
 
-// subject references
+// subject references //todo refacto references
 router.route("/subject/:_id/reference")
-.post(verifyToken, isUser, validateBody(subjectSchema.addReference), subjectController.addReference)
-.delete(verifyToken, isUser, subjectController.deleteReference)
+.post(verifyToken, validateBody(subjectSchema.addReference), flush, subjectController.addReference)
+.delete(verifyToken, flush, subjectController.deleteReference)
 
 
-    
 // comment
-router.route("/comment")
-.get(verifyToken, isUser, commentController.getAllOrFilter)
-.post(verifyToken, isUser, validateBody(commentSchema.add), commentController.addOne)
-
-router.route("/comment/:_id")
-.get(verifyToken, isUser, commentController.getOne)
-.patch(verifyToken, isUser, validateBody(commentSchema.update), commentController.updateOne)
-.delete(verifyToken, isUser,validateParams(commentSchema.delete), commentController.deleteOne)
+router.route("/comment/:author")
+.get(verifyToken, cache, commentController.getByAuthor)
+.post(verifyToken, validateBody(commentSchema.add), flush, commentController.addOne)
+.patch(verifyToken, validateBody(commentSchema.update), flush, commentController.updateOne)
+.delete(verifyToken, validateParams(commentSchema.delete), flush, commentController.deleteOne)
 
     
 // auth
 router.post("/login", validateBody(authSchema.login), authController.login)
-router.post("/register", validateBody(userSchema.add), authController.register)
+router.post("/register", validateBody(authSchema.register), authController.register)
 router.post("/recovery", validateBody(authSchema.lostPassword), authController.lostPassword)
 
 // admin
-router.get("/admin/users", verifyToken, isAdmin, adminController.getAllOrFilter)
 router.route("/admin/user")
-.get(verifyToken, isAdmin, adminController.getOneUser)
-.patch(verifyToken, isAdmin, adminController.update)
-.delete(verifyToken, isAdmin, adminController.delete)
+.get(verifyToken, isAdmin, cache, adminController.getAllOrFilter)
+.patch(verifyToken, isAdmin, flush, adminController.update)
+.delete(verifyToken, isAdmin, flush, adminController.delete)
 
 module.exports = router
