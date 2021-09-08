@@ -10,15 +10,21 @@ const rateLimit = require('express-rate-limit');
 const https = require('https')
 const fs = require("fs")
 
+// env variables
+const PORT = process.env.PORT
+const ENV = process.env.NODE_ENV
+const DOMAIN = process.env.DOMAIN
+const API_URL_PREFIX = process.env.API_URL_PREFIX
+const HTTP = process.env.HTTP
 
 // required files
 const docs = require('./docs/swagger');
 const router = require("./app/router")
 
-const PORT = process.env.PORT
-const ENV = process.env.NODE_ENV
-const DOMAIN = process.env.DOMAIN
-const API_URL_PREFIX = process.env.API_URL_PREFIX
+// launch scheduled dump of mongoDB database
+if(ENV === "production") require("./db-dump/node-cron");
+
+
 
 const app = express()
 
@@ -39,19 +45,17 @@ app.use(cors({origin: [
 app.use('/api-docs',swaggerUI.serve,swaggerUI.setup(docs));
 app.use(API_URL_PREFIX, helmet(), router)
 
-console.log(process.env)
 
 const certFiles = {
   key: fs.readFileSync("./ssl/privkey.pem"),
   cert: fs.readFileSync("./ssl/fullchain.pem")
-}
+};
 
 
-if(ENV === "production"){
-  https.createServer(certFiles, app).listen(PORT, () => console.log(`HTTPS server up, listen on port: ${PORT}`));
-  require("./db-dump/node-cron")
-}else {
-  app.listen(PORT, () => console.log(`HTTP server up, listen on port: ${PORT}`))
-}
+if(HTTP === "true") app.listen(PORT, () => console.log(`HTTP server up, listen on port: ${PORT}`));
+else https.createServer(certFiles, app).listen(PORT, () => console.log(`HTTPS server up, listen on port: ${PORT}`));
+
+
+
 
 

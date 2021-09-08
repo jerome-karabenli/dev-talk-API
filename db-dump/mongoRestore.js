@@ -20,14 +20,3 @@ const restore = async () => {
 }
 
 restore()
-
-
-
-
-
-
-
-
-
-.then(result => console.log(result))
-.catch(error => console.log(error))

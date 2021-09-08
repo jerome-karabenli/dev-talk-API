@@ -6,3 +6,4 @@ ssl/privkey.pem
 ssl/fullchain.pem
 docker-compose.yml
 db-dump/backup/*.dump
+package-lock.json
