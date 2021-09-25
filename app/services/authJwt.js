@@ -1,41 +1,47 @@
 const jwt = require("jsonwebtoken")
-
 const secret = process.env.ACCES_TOKEN_SECRET
-const {User} = require("../models");
+const {promisify} = require('util');
+
+const asyncJWT = {
+    verify: promisify(jwt.verify).bind(jwt),
+    sign: promisify(jwt.sign).bind(jwt)
+}
+
 
 module.exports = {
     verifyToken: async (req, res, next) => {
+        
         try {
-            const authHeader = req.headers["authorization"];
+            const token = req.headers["authorization"].split(" ")[1];
+            req.token = await asyncJWT.verify(token, secret)
+            next()
 
-            if (!authHeader) return res.status(403).json("No token provided!");
-           
-            const token = authHeader.split(" ")[1]
-
-            if(!token) return res.status(401).json("Unauthorized")
-            
-            jwt.verify(token, secret, (err, data) => {
-                if(err) return res.status(401).json(err)
-                else {
-                    req.token = data
-                    next()     
-                }
-            })
-            
         } catch (error) {
-            res.status(500).json(error)
-  
+            console.log(error.message)
+            return res.status(401).send('Unauthorized')  
         }
+         
     },
 
-    isAdmin: async (req, res, next) => {
-
-        const tokenData = req.token
+    jwtSign: async (obj) => {
         
-        const admin = tokenData.role.find(role => role === "admin")
-        if(!admin) return res.status(403).json("Require Admin Role !")
+        try {
+            return await asyncJWT.sign(
+                obj, 
+                secret, 
+                { expiresIn: '30y', algorithm: 'HS256' }
+            )
+        } catch (error) {
+            console.log(error.message)
+            throw new Error(error.message)
+        }
 
-        next()    
+    },
+
+    isAdmin: (req, res, next) => {
+        const isAdmin = req.token.role.find(role => role === 'admin')
+        if(!isAdmin) return res.status(403).send("Unauthorized")
+        next()
     }
+  
 }
-

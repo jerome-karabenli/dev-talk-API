@@ -23,6 +23,5 @@ module.exports = {
         password: Joi.string().trim().regex(new RegExp('^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])([a-zA-Z0-9]){8,}$')).required(),
         passwordConfirm: Joi.string().trim().required().valid(Joi.ref('password'))
     })
-
-    
+   
 }

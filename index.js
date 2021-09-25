@@ -1,6 +1,6 @@
 // required modules
 require("dotenv").config()
-const path = require("path")
+
 const express = require("express")
 const cors = require("cors")
 const swaggerUI = require("swagger-ui-express");
@@ -15,7 +15,7 @@ const PORT = process.env.PORT
 const ENV = process.env.NODE_ENV
 const DOMAIN = process.env.DOMAIN
 const API_URL_PREFIX = process.env.API_URL_PREFIX
-const HTTP = process.env.HTTP
+const HTTPS = process.env.HTTPS
 
 // required files
 const docs = require('./docs/swagger');
@@ -39,7 +39,7 @@ app.use(limiter);
 
 app.use(cors({origin: [
   `https://${DOMAIN}:${PORT}`,
-  `http://${DOMAIN}:${PORT}`,
+  `http://localhost:${PORT}`
 ]}))
 
 app.use('/api-docs',swaggerUI.serve,swaggerUI.setup(docs));
@@ -52,8 +52,8 @@ const certFiles = {
 };
 
 
-if(HTTP === "true") app.listen(PORT, () => console.log(`HTTP server up, listen on port: ${PORT}`));
-else https.createServer(certFiles, app).listen(PORT, () => console.log(`HTTPS server up, listen on port: ${PORT}`));
+if(HTTPS === "true") https.createServer(certFiles, app).listen(PORT, () => console.log(`HTTPS server up, listen on port: ${PORT}`));
+else app.listen(PORT, () => console.log(`HTTP server up, listen on port: ${PORT}`));
 
 
 

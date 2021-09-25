@@ -1,7 +1,6 @@
 const mongoose = require("mongoose")
 const ENV = process.env.NODE_ENV
 
-
 if(ENV === 'production'){
   module.exports = mongoose.connect(process.env.MONGODB_URI_PROD, {
     useNewUrlParser: true,

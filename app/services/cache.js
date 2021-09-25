@@ -1,58 +1,63 @@
-const db = require('../databases/redis');
-
-const {promisify} = require('util');
-
-
-const asyncClient = {
-    get: promisify(db.get).bind(db),
-    set: promisify(db.set).bind(db),
-    setex: promisify(db.setex).bind(db),
-    del: promisify(db.del).bind(db),
-    exists: promisify(db.exists).bind(db)
-}
+const asyncClient = require('../utils/redis_promisify')
 
 
 const TIMEOUT = 60 * 30; // 30 minutes
 
 const keys = [];
 
-const cache = async (req, res, next) => {
-   
-    const key = `${req.url}`;
-    if (keys.includes(key)) {
-        const value =  JSON.parse(await asyncClient.get(key));
-        console.log('reponse en cache')
-        res.json(value);
-    } else {
 
-        const originalJson = res.json.bind(res);
+module.exports = async (req, res, next) => {
+    
+    try {
+        if(req.method === "GET"){
+            const key = req.url;
+            if (keys.includes(key)) {
+                const value =  JSON.parse(await asyncClient.get(key));
+                console.log('cached response')
+                res.json(value);
+            } 
+            else {
 
+                const originalJson = res.json.bind(res);
 
-        res.json = async data => {
-            const jsonData = JSON.stringify(data);
-            await asyncClient.setex(key, TIMEOUT, jsonData);
-            keys.push(key);
-            console.log("json modifié")
-            originalJson(data);
+                res.json = async (data) => {
+                    
+                    const jsonData = JSON.stringify(data);
+
+                    if(jsonData.match(/error|undefined/gi)) return originalJson(data)
+
+                    await asyncClient.setex(key, TIMEOUT, jsonData);
+
+                    keys.push(key);
+
+                    console.log("modified json")
+
+                    originalJson(data);
+                          
+                }
+
+                next();
+            }
+        }else {
+            
+            const key = keys.find(key => key === req.url)
+            if(!key) return next()
+
+            console.log('Removing key', key);
+            
+            await asyncClient.del(key);
+
+            const keyIndex = keys.indexOf(key)
+
+            keys.splice(keyIndex, 1)
+            
+            next();
         }
 
-        next();
+    } catch (error) {
+        next(error)
     }
 }
 
-const flush = async (_, __, next) => {
 
-        for (const key of keys) {
-            console.log('Removing key', key);
-            await asyncClient.del(key);
-        }
 
-        keys.length = 0;
-    
-        next();
-};
-
-module.exports = {
-    cache,
-    flush
-};

@@ -1,15 +1,16 @@
 const Joi = require("joi")
 
 module.exports = {
-    add: Joi.object({
+    createComment: Joi.object({
         body: Joi.string().trim().required(),
-        author: Joi.string().alphanum().length(24).required(),
         subject: Joi.string().alphanum().length(24).required()
     }),
-    update: Joi.object({
-        body: Joi.string().trim().required()
+    updateComment: Joi.object({
+        body: Joi.string().trim().required(),
+        _id: Joi.string().alphanum().length(24).required()
+
     }),
-    delete: Joi.object({
+    deleteComment: Joi.object({
         _id: Joi.string().alphanum().length(24).required()
     })
 

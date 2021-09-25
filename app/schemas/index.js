@@ -1,6 +1,8 @@
 module.exports = {
-    userSchema: require('./user'),
-    subjectSchema: require('./subject'),
-    commentSchema: require('./comment'),
-    authSchema: require('./auth'),
+    user: require('./userSchema'),
+    subject: require('./subjectSchema'),
+    comment: require('./commentSchema'),
+    auth: require('./authSchema'),
+    
+    
 }

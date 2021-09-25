@@ -16,10 +16,10 @@ const {mongoTools, mtOptions} = require('./mongoDump')
 
 
 // cron.schedule('30 * * * * *', deleteOldBackup)
-cron.schedule('0 1 * * *', async () => {
+cron.schedule('0,15,30,45 * * * * *', async () => {
     try {
-        const dump = await mongoTools.mongodump(mtOptions)
-        console.log(dump.message)
+        const {message} = await mongoTools.mongodump(mtOptions)
+        console.log(message)
     } catch (error) {
         console.log(error.message)
     }

@@ -1,5 +1,4 @@
 const { User, Subject, Comment } = require("../models")
-const { deleteEmptyKeys, deleteUnthorizedKeys, checkEmail, checkPassword } = require("../services/utils")
 
 
 
@@ -8,8 +7,9 @@ module.exports = {
     getOne: async (req, res) => {
         try {
            
-           
+          
             const { _id } = req.token
+            
             
             const user = await User.findOne({ _id }, {password:0})
             .populate(
@@ -27,11 +27,10 @@ module.exports = {
             
             if(!user) res.status(404).json({message: "user not found"})
 
-            return res.json(user)
+            res.json(user)
 
         } catch (error) {
-            res.status(500).json(error)
-            
+            res.status(500).json(error)  
         }
 
     },
