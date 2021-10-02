@@ -32,6 +32,7 @@
     "mongoose": "^5.12.9",
     "node-cron": "^3.0.0",
     "node-mongotools": "^1.1.4",
+    "nodemailer": "^6.6.5",
     "redis": "^3.1.2",
     "swagger-ui-express": "^4.1.6"
   },

@@ -28,7 +28,7 @@ if(ENV === "production") require("./db-dump/node-cron");
 
 const app = express()
 
-// enable json on express
+// enable json and encoded url on express
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

@@ -1,15 +1,13 @@
 const { User, Subject, Comment } = require("../models")
+const bcrypt = require("bcryptjs")
 
 
 
 module.exports = {
-    
-    getOne: async (req, res) => {
+
+    getLogged: async (req, res) => {
         try {
-           
-          
-            const { _id } = req.token
-            
+            const { _id } = req.tokenPayload
             
             const user = await User.findOne({ _id }, {password:0})
             .populate(
@@ -24,52 +22,42 @@ module.exports = {
                     select: '-subject'
                 }
             })
-            
-            if(!user) res.status(404).json({message: "user not found"})
 
             res.json(user)
 
         } catch (error) {
-            res.status(500).json(error)  
+            res.status(500).json(error.message)  
         }
 
     },
 
-    updateOne: async (req, res) => {
+    updateUser: async (req, res) => {
         try {
             
-            const {_id} = req.token
-            
-            const updatedUser = await User.findOneAndUpdate({_id}, req.body, {new: true}).select("-password")
-            .populate({
-                path: "subjects",
-                model: "Subject", 
-                select: '-author', 
-                populate: {
-                    path: "comments", 
-                    model: "Comment", 
-                    select: '-subject'
-                }
-            })
-            if(!updatedUser) return res.status(404).json({message: "user not found"})
+            const {_id} = req.tokenPayload
 
-            res.json(updatedUser)
+            const {nModified} = await User.updateOne({_id}, req.body)
+            if(!nModified) throw new Error('user not updated')
+            
+            res.json({message: 'user updated'})
+
         
         } catch (error) {
-            res.status(500).json(error)
+            res.status(500).send({error: error.message})
         }
     },
 
-    deleteOne: async (req, res) => {
+    deleteUser: async (req, res) => {
         try {
-            const { _id } = req.token
+            const { _id } = req.tokenPayload
 
             const {deletedCount} = await User.deleteOne({ _id })
-            if(!deletedCount) return res.status(404).json({message: "user not found"})
+            if(!deletedCount) throw new Error('user not deleted')
+            
             res.json({message: "user deleted"})
             
         } catch (error) {
-            res.status(500).json(error)
+            res.status(500).send({error: error.message})
         }
     }
 }

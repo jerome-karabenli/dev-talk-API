@@ -1,7 +1,11 @@
 const { User } = require('../models')
 const bcrypt = require("bcryptjs")
-const {jwtSign} = require('../services/authJwt')
+const {signAccessToken, signRefreshToken, signResetPasswordToken} = require('../services/authJwt')
+const asyncRedisClient = require('../utils/redis_promisify')
+const sendEmail = require('../services/nodemailer')
+const resetPasswordTemplate = require('../utils/email-templates/resetPassword')
 
+const TIMEOUT = 60 * 60 * 24; // 24 heures
 
 module.exports = {
     login: async (req, res, next) => {
@@ -10,19 +14,20 @@ module.exports = {
             const { pseudo, password } = req.body
             
             const user = await User.findOne({pseudo})
-            
-            if(!user) return res.status(404).json({message: "Erreur d'authenfication"})
+            if(!user) return res.status(404).send({error: "Auth error"})
             
             const compare = await bcrypt.compare(password, user.password)
-            if(!compare) return res.status(404).json({message: "Erreur d'authenfication"})
+            if(!compare) return res.status(404).send({error: "Auth error"})
             
-            const token = await jwtSign({_id: user._id, role: user.role})
-            
-            res.json({accesToken: token})
-            
-            
+            const accessToken = await signAccessToken({_id: user._id, role: user.role})
+            const refreshToken = await signRefreshToken({_id: user._id, role: user.role})
+
+            await asyncRedisClient.setex('refreshTokenUser' + user._id, TIMEOUT, refreshToken)
+            res.json({accessToken, refreshToken})
+                
         } catch (error) {
-            res.status(500).json(error.message)
+            
+            res.status(500).send({error: error.message})
         }
     }, 
 
@@ -32,62 +37,83 @@ module.exports = {
             const {pseudo, lastname, email } = req.body
 
             const userExist = await User.exists({$or: [{ email }, { lastname }, { pseudo }]})
-            if(userExist) return res.status(401).json({message:"vous etes déja enregistré"})
+            if(userExist) return res.status(401).json({error:"already registered"})
 
-            const newUser = new User(req.body)
-            await newUser.save()
-            const token = jwtSign({_id: user._id, role: user.role})
-            res.json({accesToken: token})
+            delete req.body.passwordConfirm
+
+            const newUser = await new User(req.body).save()
+            if(!newUser._id) throw new Error("user not created")
             
+            res.status(201).json({message: "user created"})
            
         } catch (error) {
-            res.status(500).json(error)
+            res.status(500).json({error: error.message})
         }
         
 
     },
 
-    // lostPassword: async (req, res) => {
-    //     try {
-    //         const {pseudo, lastname, firstname, email, password, passwordConfirm} = req.body
-    //         const userExist = await User.exists({pseudo, lastname, firstname, email})
-            
-    //         if(!userExist) return res.status(404).json({message: "Utilisateur non trouvé"})
-    //         if(!password === passwordConfirm) return res.status(400).json({message: "les mots de passe ne correspondent pas"})
-    //         console.log(req.body)
-    //         const salt = await bcrypt.genSalt(10)
-    //         const hashedPass = await bcrypt.hash(password, salt)
-    //         const user = await User.findOneAndUpdate({pseudo, lastname, firstname, email}, {password: hashedPass})
-            
-    //         if(!user) throw Error("Une erreur s'est produite merci de réessayer plus tard")
-
-    //         const token = jwt.sign({ _id: user._id, role: user.role }, 
-    //             jwtSecret, { expiresIn: '1h' }
-    //         )
-    //         res.json({accesToken: token})
-            
-    //     } catch (error) {
-    //         res.status(500).json(error.message)
-    //     }
-    // },
-
-    // changePassword: async (req, res) => {
-    //     const {oldPassword, newPassword} = req.body
-    //     const {_id} = req.token
-
-    //     if(oldPassword === newPassword) return res.status(400).json({message:'merci de renseigner un mot de passe différent'})
+    refreshToken: async (req, res) => {
         
-    //     const user = await User.findOne({_id})
-     
-    //     const compare = await bcrypt.compare(oldPassword, user.password)
-    //     if(!compare) res.status(400).json({message: "Le mot de passe ne correspond pas"})
-    //     if(compare) {
+        try {
+            const refreshToken = req.headers["authorization"].split(" ")[1]
+            const cachedRefreshToken = await asyncRedisClient.get("refreshTokenUser" + req.tokenPayload._id)
+            if(refreshToken !== cachedRefreshToken) return res.status(401).send("Unauthorized")
+
+            const newAccessToken = await signAccessToken({_id: req.tokenPayload._id, role: req.tokenPayload.role})
+            const newRefreshToken = await signRefreshToken({_id: req.tokenPayload._id, role: req.tokenPayload.role})
+
+            await asyncRedisClient.setex('refreshTokenUser' + req.tokenPayload._id, TIMEOUT, newRefreshToken)
+            res.json({accessToken: newAccessToken, refreshToken: newRefreshToken})
+
+        } catch (error) {
+            res.status(500).send({error: error.message})
+        }
+
+    },
+
+    resetPassword: async (req, res) => {
+        try {
+            const {email} = req.body
+            const user = await User.findOne({email})
+            if(!user) res.status(404).send({error: 'user not found'})
+
+            const resetToken = await signResetPasswordToken({_id: user._id})
+
+            await asyncRedisClient.setex('resetToken' + user._id, 60*60, resetToken)
+
+            const emailBody = resetPasswordTemplate(resetToken)
+
+            await sendEmail("jdevtalk@gmail.com", "Reset Password", emailBody)
+
+            res.json({message: 'email sent'})
+
+        } catch (error) {
+            res.status(500).send({error: error.message})
+        }
+    },
+
+    confirmResetPassword: async (req, res) => {
+        try {
+            delete req.body.passwordConfirm
+            const {_id} = req.tokenPayload
+
+            const deleteToken = await asyncRedisClient.del('resetToken' + _id)
+            if(!deleteToken) return res.status(401).send({error: 'token is already used'})
+
+            const salt = await bcrypt.genSalt(10)
+            req.body.password = await bcrypt.hash(req.body.password, salt)
+
+            const {nModified} = await User.updateOne({_id}, req.body)
+            if(!nModified) throw new Error('user password not updated')
             
-    //         user.password = newPassword
-    //         await user.save()
+            res.json({message: 'user password updated'})
 
-    //         res.json(user)
-    //     }
+        } catch (error) {
+            res.status(500).send({error: error.message})
+        }
+    }
+    
 
-    // }
+    
 }

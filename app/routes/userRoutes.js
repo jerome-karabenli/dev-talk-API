@@ -1,11 +1,12 @@
 const userRouter = require('express').Router()
 const userController = require("../controllers/userController")
+const passwordUpdateCheck = require('../middlewares/passwordUpdateCheck')
 
 
 userRouter.route("/user")
-.get(  userController.getOne)
-.patch(  userController.updateOne)
-.delete(  userController.deleteOne)
+.get(  userController.getLogged)
+.patch( passwordUpdateCheck, userController.updateUser)
+.delete(  userController.deleteUser)
 
 
 

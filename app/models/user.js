@@ -15,9 +15,6 @@ const userSchema = new Schema({
 }, { timestamps: true, versionKey: false })
 
 
-// userSchema.post("save", async function(){
-//   await this.populate({path: "subjects"}).execPopulate()
-// }) 
 
 userSchema.pre("save", async function(){
   if(!this.registered){

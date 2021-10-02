@@ -2,15 +2,9 @@ const { Subject, User, Comment } = require("../models")
 
 module.exports = {
     getAllOrFilter: async (req, res) => {
-        
         try {
             
-            
-            let {title} = req.query
-            
-            
-            
-            if(!title){
+            if(!req.query.title){
                 
                 const subjects = await Subject.find({})
                 .populate({path: "author", model: 'User', select: 'pseudo lastname firstname'})
@@ -23,13 +17,11 @@ module.exports = {
                 })
                 return res.json(subjects)
             }
+
+            const {title} = req.query
             
-            
-           
-            
-            
-            
-            const subjects = await Subject.find({$or: [{title: {$regex:`${title}`, $options: 'i'} }]})
+            const subjects = await Subject.find({title: {$regex: title, $options: 'i'} })
+            .populate({path: "author", model: 'User', select: 'pseudo lastname firstname'})
             .populate({path: "comments", model: 'Comment', select: '-subject', populate: 
                         {
                             path: 'author',
@@ -38,103 +30,67 @@ module.exports = {
                         }
                 })
                 
-            if(!subjects.length) return res.status(404).json({message: "subject not found"})
+            if(!subjects.length) return res.status(404).json({message: `no subject title match with '${title}'`})
             res.json(subjects)
    
         } catch (error) {
-            res.status(500).json(error.message)
+            res.status(500).send({error: error.message})
         }
     },
 
-
-    addOne: async (req, res) => {
+    createSubject: async (req, res) => {
         try {
-            const { _id } = req.token
-         
-    
-            const userExist = await User.exists({ _id })
-            
-            if(!userExist) return res.status(404).json({message: "l'utilisateur n'existe pas"})
+            const { _id } = req.tokenPayload
 
-            const newSubject = new Subject(req.body)
+            req.body.author = _id
 
-            newSubject.author = _id
-           
-            await newSubject.save()
+            const newSubject = await new Subject(req.body).save()
 
             await User.updateOne({ _id }, { $push: { subjects: newSubject._id } })
             
-            res.json(newSubject)
+            res.status(201).json({message: 'subject created'})
             
         } catch (error) {
-            res.status(500).json(error)
+            res.status(500).json({error: error.message})
         }
     },
 
-
-    addReference: async (req, res) => {
+    updateSubject: async (req, res) => {
         try {
-            const { url, description } = req.body
-            const {_id} = req.params
-
-            const newReference = {url, description}
-
-            const {nModified} = await Subject.updateOne({ _id }, { $push: { references: newReference } })
-
-            if(!nModified) return res.status(404).json({message: "subject not found"})
-
-            res.json({message: "reference added"})
-            
-        } catch (error) {
-            res.status(500).json(error.message)
-        }
-    },
-
-
-    updateOne: async (req, res) => {
-        try {
-            const author = req.token._id
+            const author = req.tokenPayload._id
             const {_id} = req.body
-           
+
             
-            const updatedSubject = await Subject.findOneAndUpdate({ _id, author }, req.body, {new: true})
+            if(!req.body.references){
+                const {nModified} = await Subject.updateOne({ _id, author }, req.body) 
+                if(!nModified) throw new Error('subject not found or subject not associated with this user')
+            }
+
+            const {nModified} = await Subject.updateOne({ _id, author }, {$push: {references: req.body.references}})
+            if(!nModified) throw new Error('subject not found or subject not associated with this user')
            
-            if(!updatedSubject) return res.status(404).json({message: "subject not found"})
-            
-            res.json(updatedSubject)
+            res.json({message: 'subject updated'})
         
         } catch (error) {
-            res.status(500).json(error)
+            res.status(500).json({error: error.message})
         }
     },
 
-    deleteOne: async (req, res) => {
+    deleteSubject: async (req, res) => {
         try {
             const { _id } = req.query
-            const author = req.token._id
+            const author = req.tokenPayload._id
             
-            const subject = await Subject.findOneAndDelete({ _id, author })
-            if(!subject) return res.status(404).json({message: "subject not found"})
+            const {deletedCount} = await Subject.deleteOne({ _id, author })
+            if(!deletedCount) throw new Error('subject not found or subject not associated with this user')
 
             const {nModified} = await User.updateOne({ _id: author }, { $pull: { subjects: _id } })
-
-            if(!nModified) return res.status(500).json({message: "author of subject not found"})
+            if(!nModified) throw new Error('subject not found or subject not associated with this user')
 
             res.json({message: "subject deleted"})
             
-
         } catch (error) {
-            res.status(500).json(error.message)
+            res.status(500).json({error: error.message})
         }
-    },
-
-    deleteReference: async (req, res) => {
-        const {url} = req.body
-        const {_id} = req.params
-
-        
-        await Subject.updateMany({_id}, {$pull: {references: {url}}})
-       
-        res.json({message: "reference deleted"})
     }
 }

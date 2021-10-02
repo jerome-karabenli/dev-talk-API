@@ -3,6 +3,7 @@ module.exports = {
     subject: require('./subjectSchema'),
     comment: require('./commentSchema'),
     auth: require('./authSchema'),
+    admin: require('./adminSchemas')
     
     
 }

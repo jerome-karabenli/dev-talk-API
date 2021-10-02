@@ -1,44 +1,88 @@
-const { User } = require("../models")
+const { User, Subject, Comment } = require("../models")
 
 
 module.exports = {
      
-    getAllOrFilter: async (req, res) => {
-        try {
-            const { _id, pseudo, lastname, email } = req.query
-            
-            if(_id || pseudo || lastname || email) {
-                const filteredUsers = await User.find({$or: [{_id}, {pseudo}, {lastname}, {email}]}, {password:0})
-                return res.json(filteredUsers)    
+    user: {
+        getAllOrFilter: async (req, res) => {
+            try {
+                const { pseudo, lastname, email } = req.query
+                
+                if( pseudo || lastname || email ) {
+                    const filteredUsers = await User.find({$or: [{pseudo}, {lastname}, {email}]}, {password:0})
+                    return res.json(filteredUsers)    
+                }
+                
+                const users = await User.find({}, {password: 0})
+                res.json(users)
+                
+            } catch (error) {
+                res.status(500).send({error: error.message})
             }
-            
-            const users = await User.find({}, {password: 0})
-            res.json(users)
-            
-        } catch (error) {
-            res.status(500).send(error)
+        },
+    
+        makeAdmin: async (req, res) => {
+            try {
+                const {_id} = req.body
+    
+                const {nModified} = await User.updateOne({_id}, {$push: {role: "admin"}})
+                if(!nModified) throw new Error('user not found')
+    
+                res.json({message: 'user updated'})
+            } catch (error) {
+                res.status(500).send({error: error.message})
+            }
+        },
+    
+        delete: async (req, res) => {
+            try {
+                const {_id} = req.body
+    
+                const user = await User.findOne({_id}, {role:1, _id:0})
+                if(user?.role.includes('admin')) throw new Error('cannot delete admin user')
+
+                const {deletedCount} = await User.deleteOne({_id})
+                if(!deletedCount) throw new Error('user not found')
+    
+                res.json({message: 'user deleted'})
+            } catch (error) {
+                res.status(500).send({error: error.message})
+                
+            }
         }
     },
 
-    update: async (req, res) => {
-        try {
-            const _id = req.params
-            const updatedUser = await User.findOneAndUpdate({_id}, req.body, {new:true})
-            res.json(updatedUser)
-        } catch (error) {
-            res.status(500).json(error.message)
+    subject: {
+        delete: async (req, res) => {
+            try {
+                const {_id} = req.body
+
+                const {deletedCount} = await Subject.deleteOne({_id})
+                if(!deletedCount) throw new Error('subject not found')
+
+                res.json({message: 'subject deleted'})
+            } catch (error) {
+                res.status(500).send({error: error.message})
+                
+            }
         }
     },
 
-    delete: async (req, res) => {
-        try {
-            const _id = req.query
+    comment: {
+        delete: async (req, res) => {
+            try {
+                const {_id} = req.body
 
-            const {deletedCount} = await User.deleteOne({_id})
-            if(!deletedCount) return res.status(404).json({message: "user not found"})
-            res.json({message: "user deleted"})
-        } catch (error) {
-            res.status(500).json(error.message)
+                const {deletedCount} = await Comment.deleteOne({_id})
+                if(!deletedCount) throw new Error('comment not found')
+
+                res.json({message: 'comment deleted'})
+            } catch (error) {
+                res.status(500).send({error: error.message})
+                
+            }
         }
     }
+
+   
 }

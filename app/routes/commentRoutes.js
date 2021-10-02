@@ -4,8 +4,8 @@ const commentController = require("../controllers/commentController")
 
 commentRouter.route("/comment")
 .get( commentController.getByAuthor)
-.post( commentController.addOne)
-.patch( commentController.updateOne)
-.delete( commentController.deleteOne)
+.post( commentController.createComment)
+.patch( commentController.updateComment)
+.delete( commentController.deleteComment)
 
 module.exports = commentRouter

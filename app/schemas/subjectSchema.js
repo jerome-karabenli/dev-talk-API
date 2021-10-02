@@ -11,15 +11,17 @@ module.exports = {
         title: Joi.string().trim(),
         description: Joi.string().trim(),
         date: Joi.date().greater("now"),
-        _id: Joi.string().alphanum().length(24).trim()
+        _id: Joi.string().alphanum().length(24).trim().required(),
+        references: Joi.object({
+            url: Joi.string().uri().required(), 
+            description: Joi.string().required()
+        })
 
     }),
-
     filterSubject: Joi.object({
-        title: Joi.string()
+        title: Joi.string().trim().required()
     }),
-
-   
-
-
+    deleteSubject: Joi.object({
+        _id: Joi.string().alphanum().length(24).trim().required()
+    })
 }
