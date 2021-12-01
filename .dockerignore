@@ -1,0 +1,8 @@
+.git
+node_app/node_modules
+yarn.lock
+package-lock.json
+docs/insomnia
+docs/dist
+docs/index.html
+docker-compose.yml

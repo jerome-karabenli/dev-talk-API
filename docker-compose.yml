@@ -1,0 +1,51 @@
+version: '3.7'
+services:  
+    api:
+      build:
+        context: .
+      #command: node node_app/index.js #uncomment this on prod env
+      image: devtalk_api
+      container_name: devtalk_api
+      restart: unless-stopped
+      networks:
+        - back
+      ports:
+        - $PORT:$PORT
+      depends_on:
+        - mongodb
+        - redis
+      environment:
+        - REDIS_URI=redis://redis:6379
+        - MONGODB_URI=mongodb://$MONGO_INITDB_ROOT_USERNAME:$MONGO_INITDB_ROOT_PASSWORD@mongodb:27017/devtalk
+        
+    mongodb:
+        image: mongo:5.0.4
+        container_name: devtalk_mongodb
+        restart: unless-stopped
+        networks:
+          - back
+        ports:
+          - 27017:27017 #by default database port is not exposed, you can uncomment this for tests
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: $MONGO_INITDB_ROOT_USERNAME
+            MONGO_INITDB_ROOT_PASSWORD: $MONGO_INITDB_ROOT_PASSWORD
+        volumes:
+          - mongodb-data:/data/db
+          
+    redis:
+      image: redis:alpine3.15
+      container_name: devtalk_redis
+      restart: unless-stopped
+      networks:
+        - back
+      ports:
+        - 6379:6379 #by default redis port is not exposed, uncomment this to expose port
+    
+       
+networks:
+  back:
+
+volumes:
+  mongodb-data:
+  redis-data:
+        
