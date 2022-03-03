@@ -5,6 +5,7 @@ services:
         context: .
       image: devtalk_api
       container_name: devtalk_api
+      hostname: devtalk_api
       restart: unless-stopped
       networks:
         - back
@@ -23,8 +24,8 @@ services:
         restart: unless-stopped
         networks:
           - back
-        ports:
-          - 27017:27017 #by default database port is not exposed, you can uncomment this for tests
+        #ports:
+          #- 27017:27017 #by default database port is not exposed, you can uncomment this for tests
         environment:
             MONGO_INITDB_ROOT_USERNAME: $MONGO_INITDB_ROOT_USERNAME
             MONGO_INITDB_ROOT_PASSWORD: $MONGO_INITDB_ROOT_PASSWORD
@@ -37,8 +38,8 @@ services:
       restart: unless-stopped
       networks:
         - back
-      ports:
-        - 6379:6379 #by default redis port is not exposed, uncomment this to expose port
+      #ports:
+        #- 6379:6379 #by default redis port is not exposed, uncomment this to expose port
     
        
 networks:
