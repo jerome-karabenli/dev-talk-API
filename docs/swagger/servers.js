@@ -1,7 +1,7 @@
 module.exports = {
     servers: [
       {
-        url: `${process.env.API_DOCS_SERVER}`, // url
+        url: "https://demo-devtalk.jkarabenli.dev/api/v1", // url
         description: "Demo server", // name
       },
     ],
