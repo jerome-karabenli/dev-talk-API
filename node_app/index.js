@@ -29,12 +29,15 @@ app.use(mongoSanitize({replaceWith: '_'}));
 const limiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 100 });
 app.use(limiter);
 
-app.use(cors({origin: [
-  `https://${DOMAIN_NAME}`
-]}))
+const corsOptions = {
+  origin: `https://${DOMAIN_NAME}`,
+  optionsSuccessStatus: 200
+}
+
+app.use(cors(corsOptions))
 
 app.use('/api-docs',swaggerUI.serve,swaggerUI.setup(docs));
-app.use(API_URL_PREFIX, helmet(), router)
+app.use(helmet(), router)
 
 
 app.listen(PORT, () => console.log(`HTTP server up, listen on port: ${PORT}\nSwagger ui available on http://localhost:${PORT}/api-docs`))
