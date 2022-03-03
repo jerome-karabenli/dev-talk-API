@@ -1,62 +1,97 @@
-# Dev-Talk
+# # Dev-Talk API
+
+<div id="top"></div>
 
 
-This is a personnal API project made for sharing knowlege in general about tech with members of my class. 
+<!-- ABOUT THE PROJECT -->
+## A propos
+Il s'agit d'un projet de conception d'API personnel pour partager des connaissances sur le dev avec les membres de ma classe.
 
-The idea is to be able to register and submit new subjects in dev-talk API and share knowledges via a discord server.
+L'idée est de pouvoir enregistrer et soumettre de nouveaux sujets dans l'API dev-talk et échanger sur les sujets a travers un serveur vocal Discord.
 
- If you have any suggestions about the project feel free to let me know
+## Stack utilisée
 
+|[NodeJS](https://www.docker.com/)|[Redis](https://www.docker.com/)|     [MongoDB](https://www.docker.com/)|[Docker](https://www.docker.com/)|
+|-|-|-|-|
 
-## Used tech 
-
-
-<p float="left">
-<img src="https://raw.githubusercontent.com/devicons/devicon/7a4ca8aa871d6dca81691e018d31eed89cb70a76/icons/nodejs/nodejs-original-wordmark.svg" alt="drawing" width=50/>
-<img src="https://raw.githubusercontent.com/devicons/devicon/7a4ca8aa871d6dca81691e018d31eed89cb70a76/icons/mongodb/mongodb-original-wordmark.svg" alt="drawing" width=50/>
-<img src="https://raw.githubusercontent.com/devicons/devicon/7a4ca8aa871d6dca81691e018d31eed89cb70a76/icons/express/express-original-wordmark.svg" alt="drawing" width=50/>
-<!-- <img src="https://raw.githubusercontent.com/devicons/devicon/9f4f5cdb393299a81125eb5127929ea7bfe42889/icons/redis/redis-original-wordmark.svg" alt="drawing" width=50/>-->
-<img src="https://raw.githubusercontent.com/devicons/devicon/9f4f5cdb393299a81125eb5127929ea7bfe42889/icons/docker/docker-original-wordmark.svg" alt="drawing" width=50/>
-</p>
-
- 
-
-## How to use this app
-
-### prerequisite
-
-1. have installed [Node JS](https://nodejs.org/en/)
-2. have a mongodb or other database but this project is based on mongo OR have [Docker](https://docs.docker.com/get-docker/) installed on your machine
-3. personnaly I use the dockerized mongodb it's more simple. [Docker image of Mongodb](https://hub.docker.com/_/mongo)
+## Prérequis
+* [Docker et docker-compose](https://docs.docker.com/engine/install/)
+* [NodeJS pour tester et modifier (optionnel)](https://docs.docker.com/engine/install/)
 
 
-### Installation exemple
-Assuming you are working on linux, adapt these commands for your os. 
-
-### ALL API FEATURES ARE READY TO USE OR CUSTOMIZABLE
-1. `git clone https://github.com/jerome-karabenli/dev-talk-REST.git`
-2. `cd dev-talk-REST/.docker`
-3. `COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build --no-cache`
-4. `docker-compose up -d`
+<!-- ROADMAP -->
+## Roadmap
+### Deploiement
+- [x] Configurer le fichier docker-compose.
+- [x] Configuer le fichier Dockerfile pour build
+- [x] Configurer le fichier `.dockerignore` pour optimiser les perfs de build
 
 
-### JUST RUN THE NODE APP
-1. `cd dev-talk-REST`
-2. `npm start` for production
-3. `npm run dev` for developpement
+### API
+- [x] Utiliser les JWT pour l'authentification.
+- [x] Envoi d'un email pour reset le mot de passe.
+- [x] Utiliser `Joi` pour faire de la validation de data.
+- [x] Créer une fonction permettant de mettre en cache dynamiquement.
+- [x] Générer une doc avec Swagger.
+
+Voir les [issues en cours](https://github.com/jerome-karabenli/dev-talk-API/issues) pour voir la liste complete des fonctionalités proposées et les bugs existants.
 
 
-## ENV VARIABLES
+<!-- HOW TO -->
+## Comment ca marche
+### [__Doc de l'API__](https://demo-devtalk.jkarabenli.dev/api-docs)
 
-be careful, if you run the node app without docker env variables are in file `./.env` otherwise if you use dockerized app env variables are in `./docker/docker-compose.yml`
+1. Clonez ce repo
+```bash
+$ git clone https://github.com/jerome-karabenli/dev-talk-API.git && cd dev-talk-API 
+``` 
+2. Lancer la commande suivante
+```bash
+$ docker-compose up -d
+```
+3. La documentation de l'API se trouve sur la route __/api-docs__
 
-- `DB_URI_DEV=mongodb://username:password@url:37017/devtalk`
-- `DB_URI_PROD=mongodb://username:password@url:27017/devtalk`
-- `ACCES_TOKEN_SECRET=yoursecret`
-- `API_DOCS_SERVER=https://url:3001/devtalk/api/v1`
-- `NODE_ENV=developpement || production`
-- `HTTPS=disabled || enabled`
+### Tester l'API
+1. Utilisez cette commande pour ne monter que les base de données. 
+```bash
+$ docker-compose up -d redis mongodb
+```
+2. Rendez vous dans le dossier `node_app` et taper 
+```bash
+$ npm start
+# ou
+$ yarn start
+```
+
+### Les variables d'environnement dans le dossier `node_app`
+- `MONGODB_URI=mongodb://demo:demo@localhost:27017/devtalk`
+- `ACCES_TOKEN_SECRET=demo`
+- `NODE_ENV=developpement`
+- `DOMAIN_NAME=demo-devtalk.jkarabenli.dev`
+- `API_URL_PREFIX=/api/v1`
+- `PORT=3000`
+- `REDIS_URI=redis://localhost:6379`
+- `API_DOCS_SERVER=https://demo-devtalk.jkarabenli.dev`
+
+<!-- CONTRIBUTING -->
+## Contribuer
+
+Les contributions sont ce qui fait de la communauté open source un endroit incroyable pour apprendre, s'inspirer et créer. Toutes les contributions que vous apportez serront __grandement appréciées__.
+
+Si vous avez une suggestion qui améliorerait le projet, vous pouvez `fork` le repo et créer une `pull request`. Vous pouvez aussi simplement ouvrir une `issue` avec le tag "enhancement".
+N'oubliez pas de mettre une étoile au projet ! Merci encore!
 
 
+1. Fork le projet
+2. Créez votre branche (`git checkout -b feature/AmazingFeature`)
+3. Commit vos changements (`git commit -m 'Add some AmazingFeature'`)
+4. Push sur votre branche (`git push origin feature/AmazingFeature`)
+5. Ouvrir une __Pull Request__
 
-docker exec -it devtalk_redis redis-cli FLUSHALL
+
+<!-- CONTACT -->
+## Liens
+
+Lien de mon blog: [jkarabenli.dev](https://jkarabenli.dev/posts)
+
+Lien du projet: [Github](https://github.com/jerome-karabenli/dev-talk-API)

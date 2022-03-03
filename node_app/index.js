@@ -30,9 +30,7 @@ const limiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 100 });
 app.use(limiter);
 
 app.use(cors({origin: [
-  `https://${DOMAIN_NAME}:${PORT}`,
-  `http://${DOMAIN_NAME}:${PORT}`,
-  `http://localhost:${PORT}`
+  `https://${DOMAIN_NAME}`
 ]}))
 
 app.use('/api-docs',swaggerUI.serve,swaggerUI.setup(docs));

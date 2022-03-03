@@ -5,8 +5,8 @@ module.exports = {
       version: "1.1.0", // version number
       contact: {
         name: "Jerome KARABENLI", // your name
-        email: "contact@jerome-karabenli.fr", // your email
-        url: "https://jerome-karabenli.fr", // your website
+        email: "contact@jkarabenli.dev", // your email
+        url: "https://jkarabenli.dev", // your website
       },
     },
   };

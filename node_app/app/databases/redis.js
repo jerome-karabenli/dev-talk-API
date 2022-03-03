@@ -1,7 +1,7 @@
 const redis = require('redis');
-const url = process.env.REDIS_URL
+const url = process.env.REDIS_URI
 
-const client = redis.createClient({url})
+const client = redis.createClient({ url });
 
 client.ping((err, data) => {
     if(err) console.log(err)

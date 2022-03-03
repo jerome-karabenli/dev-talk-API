@@ -3,7 +3,6 @@ services:
     api:
       build:
         context: .
-      #command: node node_app/index.js #uncomment this on prod env
       image: devtalk_api
       container_name: devtalk_api
       restart: unless-stopped
@@ -20,7 +19,7 @@ services:
         
     mongodb:
         image: mongo:5.0.4
-        container_name: devtalk_mongodb
+        container_name: mongodb
         restart: unless-stopped
         networks:
           - back
@@ -34,7 +33,7 @@ services:
           
     redis:
       image: redis:alpine3.15
-      container_name: devtalk_redis
+      container_name: redis
       restart: unless-stopped
       networks:
         - back
