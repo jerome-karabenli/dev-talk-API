@@ -56,7 +56,7 @@ $ docker-compose up -d
 ```bash
 $ docker-compose up -d redis mongodb
 ```
-2. Rendez vous dans le dossier `node_app` et taper 
+2. Rendez vous dans le dossier `node_app` et tapez 
 ```bash
 $ npm start
 # ou
