@@ -1,8 +1,5 @@
 node_modules
 *.DS_Store
 *.map
-.env
-ssl/privkey.pem
-ssl/fullchain.pem
 package-lock.json
 yarn.lock
