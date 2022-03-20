@@ -5,7 +5,7 @@
 
 <!-- ABOUT THE PROJECT -->
 ## A propos
-Il s'agit d'un projet de conception d'API personnel pour partager des connaissances sur le dev avec les membres de ma classe.
+Il s'agit d'un projet de conception d'API personnel pour partager des connaissances sur le dev avec d'autres personnes.
 
 L'idée est de pouvoir enregistrer et soumettre de nouveaux sujets dans l'API dev-talk et échanger sur les sujets a travers un serveur vocal Discord.
 
